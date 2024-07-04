@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
+const consultaRoutes = require('./routes/consultas');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,6 +12,8 @@ app.use(express.json());
 
 // Usar rutas de autenticación
 app.use('/api/auth', authRoutes);
+app.use('/api', consultaRoutes);
+
 
 app.use(express.static('public'));
 
