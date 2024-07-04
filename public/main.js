@@ -10,216 +10,114 @@ AOS.init({
 });
 
 document.addEventListener("DOMContentLoaded", function() {
-  // Funcionalidad adicional para el frontend
+  // Event listener para el formulario de registro
+  const registerForm = document.getElementById("register-form");
+  if (registerForm) {
+    registerForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const confirmPassword = document.getElementById("confirm-password").value.trim();
 
-  // Validación adicional para el formulario de login
-  document.getElementById("login-form").addEventListener("submit", function(event) {
-    event.preventDefault();
-    var email = document.getElementById("email").value.trim();
-    var password = document.getElementById("password").value.trim();
-    
-    if (!validateEmail(email)) {
-      showError("email", "Por favor, ingrese un correo válido.");
-      return;
-    }
-    
-    if (!validatePassword(password)) {
-      showError("password", "La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y caracteres especiales.");
-      return;
-    }
-    
-    // Si la validación es exitosa, enviar los datos al backend
-    authenticateUser(email, password);
-  });
-
-  // Mostrar errores
-  function showError(field, message) {
-    var errorElement = document.getElementById("error-" + field);
-    if (!errorElement) {
-      errorElement = document.createElement("div");
-      errorElement.id = "error-" + field;
-      errorElement.className = "text-danger";
-      document.getElementById(field).parentElement.appendChild(errorElement);
-    }
-    errorElement.innerText = message;
-  }
-
-  // Validación de email
-  function validateEmail(email) {
-    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  // Validación de contraseña
-  function validatePassword(password) {
-    var passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&_-]{8,}$/;
-    return passwordRegex.test(password);
-  }
-
-  // Autenticación del usuario
-  function authenticateUser(email, password) {
-    fetch('http://localhost:5000/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email: email, password: password })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.token) {
-        // Almacenar el token en el almacenamiento local
-        localStorage.setItem('token', data.token);
-        // Autenticación exitosa, redirigir al usuario
-        window.location.href = "index.html";
-      } else {
-        // Mostrar mensaje de error
-        alert("Error de autenticación: " + data.message);
+      if (password !== confirmPassword) {
+        alert("Las contraseñas no coinciden.");
+        return;
       }
-    })
-    .catch(error => {
-      console.error('Error:', error);
+
+      // Función para registrar al usuario
+      registerUser(name, email, password);
     });
+
+    // Toggle password visibility for registration
+    const togglePassword = document.getElementById("togglePassword");
+    const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+    const passwordField = document.getElementById("password");
+    const confirmPasswordField = document.getElementById("confirm-password");
+
+    if (togglePassword && toggleConfirmPassword) {
+      togglePassword.addEventListener("click", function() {
+        const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+        passwordField.setAttribute("type", type);
+        confirmPasswordField.setAttribute("type", type);
+        this.innerHTML = type === "text" ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+      });
+
+      toggleConfirmPassword.addEventListener("click", function() {
+        const type = confirmPasswordField.getAttribute("type") === "password" ? "text" : "password";
+        confirmPasswordField.setAttribute("type", type);
+        this.innerHTML = type === "text" ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+      });
+    }
   }
 
-  // Mostrar/Ocultar contraseña adicional
-  document.getElementById("togglePassword").addEventListener("click", function() {
-    var passwordField = document.getElementById("password");
-    var passwordFieldType = passwordField.getAttribute("type");
-    if (passwordFieldType === "password") {
-      passwordField.setAttribute("type", "text");
-      this.innerHTML = '<i class="fas fa-eye-slash"></i>';
-    } else {
-      passwordField.setAttribute("type", "password");
-      this.innerHTML = '<i class="fas fa-eye"></i>';
-    }
-  });
+  // Event listener para el formulario de inicio de sesión
+  const loginForm = document.getElementById("login-form");
+  if (loginForm) {
+    loginForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-  // Funcionalidad para recordar contraseña
-  document.getElementById("rememberMe").addEventListener("change", function() {
-    var rememberMe = this.checked;
-    if (rememberMe) {
-      localStorage.setItem("rememberMe", "true");
-    } else {
-      localStorage.removeItem("rememberMe");
-    }
-  });
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-  // Validación adicional para el formulario de registro
-  document.getElementById("register-form").addEventListener("submit", function(event) {
-    event.preventDefault();
-    var name = document.getElementById("name").value.trim();
-    var email = document.getElementById("email").value.trim();
-    var password = document.getElementById("password").value.trim();
-    var confirmPassword = document.getElementById("confirm-password").value.trim();
-    
-    if (!validateName(name)) {
-      showError("name", "Por favor, ingrese su nombre.");
-      return;
-    }
-    
-    if (!validateEmail(email)) {
-      showError("email", "Por favor, ingrese un correo válido.");
-      return;
-    }
-    
-    if (!validatePassword(password)) {
-      showError("password", "La contraseña debe tener al menos 8 caracteres, incluyendo letras y números.");
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      showError("confirm-password", "Las contraseñas no coinciden.");
-      return;
-    }
-    
-    // Si la validación es exitosa, enviar los datos al backend
-    registerUser(name, email, password);
-  });
-
-  // Mostrar errores
-  function showError(field, message) {
-    var errorElement = document.getElementById("error-" + field);
-    if (!errorElement) {
-      errorElement = document.createElement("div");
-      errorElement.id = "error-" + field;
-      errorElement.className = "text-danger";
-      document.getElementById(field).parentElement.appendChild(errorElement);
-    }
-    errorElement.innerText = message;
-  }
-
-  // Validación de nombre
-  function validateName(name) {
-    return name.length > 0;
-  }
-
-  // Validación de email
-  function validateEmail(email) {
-    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  // Validación de contraseña
-  function validatePassword(password) {
-    var passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&_-]{8,}$/;
-    return passwordRegex.test(password);
-  }
-
-  // Registro del usuario
-  function registerUser(name, email, password) {
-    fetch('http://localhost:5000/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ name: name, email: email, password: password })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.token) {
-        // Almacenar el token en el almacenamiento local
-        localStorage.setItem('token', data.token);
-        // Registro exitoso, redirigir al usuario
-        window.location.href = "index.html";
-      } else {
-        // Mostrar mensaje de error
-        alert("Error de registro: " + data.message);
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
+      // Función para iniciar sesión del usuario
+      loginUser(email, password);
     });
-  }
 
-  // Mostrar/Ocultar contraseña adicional
-  document.getElementById("togglePassword").addEventListener("click", function() {
-    var passwordField = document.getElementById("password");
-    var confirmPasswordField = document.getElementById("confirm-password");
-    var passwordFieldType = passwordField.getAttribute("type");
-    if (passwordFieldType === "password") {
-      passwordField.setAttribute("type", "text");
-      confirmPasswordField.setAttribute("type", "text");
-      this.innerHTML = '<i class="fas fa-eye-slash"></i>';
-    } else {
-      passwordField.setAttribute("type", "password");
-      confirmPasswordField.setAttribute("type", "password");
-      this.innerHTML = '<i class="fas fa-eye"></i>';
+    // Toggle password visibility for login
+    const toggleLoginPassword = document.getElementById("togglePassword");
+    const loginPasswordField = document.getElementById("password");
+
+    if (toggleLoginPassword) {
+      toggleLoginPassword.addEventListener("click", function() {
+        const type = loginPasswordField.getAttribute("type") === "password" ? "text" : "password";
+        loginPasswordField.setAttribute("type", type);
+        this.innerHTML = type === "text" ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+      });
     }
-  });
-});
-
-
-document.getElementById("toggleConfirmPassword").addEventListener("click", function() {
-  var confirmPasswordField = document.getElementById("confirm-password");
-  var confirmPasswordFieldType = confirmPasswordField.getAttribute("type");
-  if (confirmPasswordFieldType === "password") {
-    confirmPasswordField.setAttribute("type", "text");
-    this.innerHTML = '<i class="fas fa-eye-slash"></i>';
-  } else {
-    confirmPasswordField.setAttribute("type", "password");
-    this.innerHTML = '<i class="fas fa-eye"></i>';
   }
 });
+
+// Función para registrar usuario
+function registerUser(name, email, password) {
+  fetch('http://localhost:3000/api/auth/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name: name, email: email, password: password })
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert("Registro exitoso. Por favor, inicia sesión.");
+    window.location.href = "login.html"; // Redirige al usuario a la página de inicio de sesión
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert("Error en el registro. Inténtalo de nuevo.");
+  });
+}
+
+// Función para iniciar sesión del usuario
+function loginUser(email, password) {
+  fetch('http://localhost:3000/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email: email, password: password })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      alert(data.message);
+    } else {
+      localStorage.setItem('token', data.token); // Almacenar el token en localStorage
+      alert("Inicio de sesión exitoso.");
+      window.location.href = "/index.html"; // Redirige al usuario a la página de inicio
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert("Error en el inicio de sesión. Inténtalo de nuevo.");
+  });
+}
